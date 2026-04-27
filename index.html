@@ -7,9 +7,9 @@
     <style>
         :root {
             --primario: #4A90E2;
-            --estudio: #50C878; /* Verde para métodos de estudio */
-            --sugerencia: #9B59B6; /* Morado para la escuela */
-            --tips: #F39C12; /* Naranja para tips generales */
+            --estudio: #50C878; 
+            --sugerencia: #9B59B6; 
+            --tips: #F39C12; 
             --fondo: #F8F9FA;
             --blanco: #ffffff;
         }
@@ -38,7 +38,6 @@
             padding: 0 15px;
         }
 
-        /* DISEÑO DE LAS SECCIONES DE ENVÍO */
         .section-card {
             background: var(--blanco);
             padding: 20px;
@@ -80,14 +79,12 @@
             transition: 0.3s;
         }
 
-        /* COLORES POR CATEGORÍA */
         .btn-tips { background: var(--tips); }
         .btn-estudio { background: var(--estudio); }
         .btn-sugerencia { background: var(--sugerencia); }
         
         button:hover { opacity: 0.8; }
 
-        /* VISTA DE PUBLICACIONES (Lo que aparecerá cuando apruebes) */
         .feed-title { text-align: center; color: var(--primario); margin: 40px 0 20px; }
         
         .post {
@@ -142,11 +139,6 @@
                 <div class="post-label" style="color: var(--tips);">Tip General</div>
                 <div class="post-content">No dejen todo para el domingo en la noche, la ansiedad no vale la pena. ¡Duerman!</div>
             </div>
-
-            <div class="post" style="border-left-color: var(--estudio);">
-                <div class="post-label" style="color: var(--estudio);">Método de Estudio</div>
-                <div class="post-content">Para aprender vocabulario en inglés, usen la app Quizlet antes de dormir. Se queda grabado.</div>
-            </div>
         </div>
 
         <footer>
@@ -156,14 +148,53 @@
     </div>
 
     <script>
-        function enviar(categoria) {
-            alert("¡Recibido! Tu " + categoria + " ha sido enviado a revisión. Si es aprobado por las moderadoras, aparecerá aquí pronto.");
-            // Esto limpia los cuadros después de enviar
-            document.getElementById('inputTips').value = "";
-            document.getElementById('inputEstudio').value = "";
-            document.getElementById('inputSugerencia').value = "";
+        // CONFIGURACIÓN DE SUPABASE
+        const SUPABASE_URL = 'https://lrmxnscjmvywjwersjpy.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxybXhuc2NqbXZ5d2p3ZXJzanB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyOTU4NzQsImV4cCI6MjA5Mjg3MTg3NH0.j8JEDY9TimFbXtMMyEen22gegdF3eMsK8eJn3aW73xI';
+
+        async function enviar(categoria) {
+            // 1. Obtener el texto según la categoría
+            let idInput = '';
+            if (categoria === 'Tips') idInput = 'inputTips';
+            if (categoria === 'Estudio') idInput = 'inputEstudio';
+            if (categoria === 'Sugerencia') idInput = 'inputSugerencia';
+
+            const texto = document.getElementById(idInput).value;
+
+            // 2. Validar que no esté vacío
+            if (texto.trim() === "") {
+                alert("¡Por favor escribe algo antes de enviar!");
+                return;
+            }
+
+            // 3. Enviar a la base de datos
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/mensajes`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        categoria: categoria,
+                        contenido: texto,
+                        aprobado: false // Siempre entra como falso para que tú lo revises
+                    })
+                });
+
+                if (response.ok) {
+                    alert("¡Recibido! Tu " + categoria + " ha sido enviado a revisión por las moderadoras.");
+                    document.getElementById(idInput).value = ""; // Limpiar el cuadro
+                } else {
+                    alert("Hubo un error al enviar. Revisa la configuración.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error de conexión con la base de datos.");
+            }
         }
     </script>
-
 </body>
 </html>
