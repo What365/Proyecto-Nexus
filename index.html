@@ -148,53 +148,88 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN DE SUPABASE
-        const SUPABASE_URL = 'https://lrmxnscjmvywjwersjpy.supabase.co'; 
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxybXhuc2NqbXZ5d2p3ZXJzanB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyOTU4NzQsImV4cCI6MjA5Mjg3MTg3NH0.j8JEDY9TimFbXtMMyEen22gegdF3eMsK8eJn3aW73xI';
+        // CONFIGURACIÓN DE SUPABASE (Asegúrate de que tus llaves sigan aquí)
+const SUPABASE_URL = 'https://lrmxnscjmvywjwersjpy.supabase.co'; 
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxybXhuc2NqbXZ5d2p3ZXJzanB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyOTU4NzQsImV4cCI6MjA5Mjg3MTg3NH0.j8JEDY9TimFbXtMMyEen22gegdF3eMsK8eJn3aW73xI';
 
-        async function enviar(categoria) {
-            // 1. Obtener el texto según la categoría
-            let idInput = '';
-            if (categoria === 'Tips') idInput = 'inputTips';
-            if (categoria === 'Estudio') idInput = 'inputEstudio';
-            if (categoria === 'Sugerencia') idInput = 'inputSugerencia';
-
-            const texto = document.getElementById(idInput).value;
-
-            // 2. Validar que no esté vacío
-            if (texto.trim() === "") {
-                alert("¡Por favor escribe algo antes de enviar!");
-                return;
+// --- 1. FUNCIÓN PARA CARGAR MENSAJES (LA NUEVA MAGIA) ---
+async function cargarMensajes() {
+    const feed = document.getElementById('feed');
+    
+    try {
+        // Le pedimos a Supabase los mensajes aprobados ordenados por los más nuevos
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/mensajes?aprobado=eq.true&order=created_at.desc`, {
+            method: 'GET',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json'
             }
+        });
 
-            // 3. Enviar a la base de datos
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/mensajes`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify({
-                        categoria: categoria,
-                        contenido: texto,
-                        aprobado: false // Siempre entra como falso para que tú lo revises
-                    })
-                });
+        const mensajes = await response.json();
 
-                if (response.ok) {
-                    alert("¡Recibido! Tu " + categoria + " ha sido enviado a revisión por las moderadoras.");
-                    document.getElementById(idInput).value = ""; // Limpiar el cuadro
-                } else {
-                    alert("Hubo un error al enviar. Revisa la configuración.");
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                alert("Error de conexión con la base de datos.");
-            }
+        // Limpiamos el feed antes de poner los nuevos
+        feed.innerHTML = "";
+
+        if (mensajes.length === 0) {
+            feed.innerHTML = "<p style='text-align:center; color:#999;'>Aún no hay mensajes aprobados. ¡Sé la primera!</p>";
+            return;
         }
+
+        // Dibujamos cada mensaje en el HTML
+        mensajes.forEach(msg => {
+            const color = msg.categoria === 'Tips' ? 'var(--tips)' : 
+                          msg.categoria === 'Estudio' ? 'var(--estudio)' : 'var(--sugerencia)';
+            
+            const postHTML = `
+                <div class="post" style="border-left-color: ${color};">
+                    <div class="post-label" style="color: ${color};">${msg.categoria}</div>
+                    <div class="post-content">${msg.contenido}</div>
+                </div>
+            `;
+            feed.innerHTML += postHTML;
+        });
+
+    } catch (error) {
+        console.error("Error al cargar:", error);
+    }
+}
+
+// --- 2. FUNCIÓN PARA ENVIAR (LA QUE YA TENÍAS) ---
+async function enviar(categoria) {
+    let idInput = (categoria === 'Tips') ? 'inputTips' : (categoria === 'Estudio') ? 'inputEstudio' : 'inputSugerencia';
+    const texto = document.getElementById(idInput).value;
+
+    if (texto.trim() === "") {
+        alert("¡Escribe algo!");
+        return;
+    }
+
+    try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/mensajes`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({ categoria: categoria, contenido: texto, aprobado: false })
+        });
+
+        if (response.ok) {
+            alert("¡Enviado a revisión!");
+            document.getElementById(idInput).value = "";
+        }
+    } catch (error) {
+        alert("Error de conexión.");
+    }
+}
+
+// --- 3. EJECUTAR AL ABRIR LA PÁGINA ---
+// Esto hace que los mensajes se carguen solitos al entrar a la web
+window.onload = cargarMensajes;
     </script>
 </body>
 </html>
