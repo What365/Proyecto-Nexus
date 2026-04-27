@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Estudiantil | Portal de Comunidad</title>
+    <style>
+        :root {
+            --primario: #4A90E2;
+            --estudio: #50C878; /* Verde para métodos de estudio */
+            --sugerencia: #9B59B6; /* Morado para la escuela */
+            --tips: #F39C12; /* Naranja para tips generales */
+            --fondo: #F8F9FA;
+            --blanco: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--fondo);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        header {
+            background: var(--blanco);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 3px solid var(--primario);
+        }
+
+        h1 { margin: 0; color: var(--primario); font-size: 2rem; }
+        .tagline { color: #7f8c8d; font-style: italic; margin-top: 5px; }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        /* DISEÑO DE LAS SECCIONES DE ENVÍO */
+        .section-card {
+            background: var(--blanco);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .section-card h2 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .dot { height: 12px; width: 12px; border-radius: 50%; display: inline-block; margin-right: 10px; }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            margin-top: 10px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-sizing: border-box;
+            resize: none;
+            font-family: inherit;
+        }
+
+        button {
+            width: 100%;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        /* COLORES POR CATEGORÍA */
+        .btn-tips { background: var(--tips); }
+        .btn-estudio { background: var(--estudio); }
+        .btn-sugerencia { background: var(--sugerencia); }
+        
+        button:hover { opacity: 0.8; }
+
+        /* VISTA DE PUBLICACIONES (Lo que aparecerá cuando apruebes) */
+        .feed-title { text-align: center; color: var(--primario); margin: 40px 0 20px; }
+        
+        .post {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 5px solid #ccc;
+        }
+
+        .post-label { font-size: 0.7rem; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
+
+        footer { text-align: center; padding: 30px; color: #bdc3c7; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Nexus Estudiantil</h1>
+        <p class="tagline">Tu comunidad, tus reglas, tu futuro.</p>
+    </header>
+
+    <div class="container">
+
+        <div class="section-card">
+            <h2><span class="dot" style="background: var(--tips);"></span>Tips de Alumnas</h2>
+            <p style="font-size: 0.85rem; color: #666;">Consejos sobre la vida en prepa, amistades y cómo sobrevivir al día a día.</p>
+            <textarea id="inputTips" placeholder="Escribe un consejo para otras niñas..."></textarea>
+            <button class="btn-tips" onclick="enviar('Tips')">Enviar Tip</button>
+        </div>
+
+        <div class="section-card">
+            <h2><span class="dot" style="background: var(--estudio);"></span>Métodos de Estudio</h2>
+            <p style="font-size: 0.85rem; color: #666;">¿Cómo estudias para ese examen difícil? Comparte tus hacks (Pomodoro, mapas, etc).</p>
+            <textarea id="inputEstudio" placeholder="¿Cuál es tu secreto para sacar 10?"></textarea>
+            <button class="btn-estudio" onclick="enviar('Estudio')">Compartir Método</button>
+        </div>
+
+        <div class="section-card">
+            <h2><span class="dot" style="background: var(--sugerencia);"></span>Sugerencias para la Escuela</h2>
+            <p style="font-size: 0.85rem; color: #666;">¿Qué mejorarías de las instalaciones o las clases? Voz directa a la dirección.</p>
+            <textarea id="inputSugerencia" placeholder="Tengo una idea para mejorar la escuela..."></textarea>
+            <button class="btn-sugerencia" onclick="enviar('Sugerencia')">Enviar Sugerencia</button>
+        </div>
+
+        <hr>
+
+        <h2 class="feed-title">Publicaciones Recientes</h2>
+
+        <div id="feed">
+            <div class="post" style="border-left-color: var(--tips);">
+                <div class="post-label" style="color: var(--tips);">Tip General</div>
+                <div class="post-content">No dejen todo para el domingo en la noche, la ansiedad no vale la pena. ¡Duerman!</div>
+            </div>
+
+            <div class="post" style="border-left-color: var(--estudio);">
+                <div class="post-label" style="color: var(--estudio);">Método de Estudio</div>
+                <div class="post-content">Para aprender vocabulario en inglés, usen la app Quizlet antes de dormir. Se queda grabado.</div>
+            </div>
+        </div>
+
+        <footer>
+            Plataforma de Liderazgo Estudiantil 2026<br>
+            Moderado por Alumnas de 10° Grado
+        </footer>
+    </div>
+
+    <script>
+        function enviar(categoria) {
+            alert("¡Recibido! Tu " + categoria + " ha sido enviado a revisión. Si es aprobado por las moderadoras, aparecerá aquí pronto.");
+            // Esto limpia los cuadros después de enviar
+            document.getElementById('inputTips').value = "";
+            document.getElementById('inputEstudio').value = "";
+            document.getElementById('inputSugerencia').value = "";
+        }
+    </script>
+
+</body>
+</html>
