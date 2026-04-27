@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <script>
+    // BLOQUEO DE SEGURIDAD
+    const passwordCorrecta = "NexusAdmin2024"; // <--- CAMBIA ESTA CONTRASEÑA
+    let intento = prompt("Acceso Restringido. Introduce la clave de moderadora:");
+
+    if (intento !== passwordCorrecta) {
+        alert("Clave incorrecta. No tienes permiso para estar aquí.");
+        window.location.href = "index.html"; // Lo manda de regreso al inicio
+    }
+</script>
     <meta charset="UTF-8">
     <title>Panel de Moderación | Nexus</title>
     <style>
